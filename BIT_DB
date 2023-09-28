@@ -43,12 +43,30 @@ SELECT product, quantity, price, location FROM BIT_DB.FebSales
 WHERE location = '548 Lincoln St, Seattle, WA 98101';
 
 SELECT
-sum(Quantity),
-product,
-sum(quantity)*price as revenue
-FROM BIT_DB.FebSales
-WHERE location = '548 Lincoln St, Seattle, WA 98101'
-GROUP BY product;
+sum(quantity)
+, product 
+, SUM(quantity)*price as revenue
+FROM FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101';
+
 
 /** How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers? **/
-SELECT 
+SELECT COUNT(distinct customers.acctnum)
+, ROUND(avg(quantity*febsales.price),2) AS avg_spent
+FROM FebSales
+JOIN customers
+ON FebSales.orderID = customers.order_id
+WHERE FebSales.Quantity > 2
+AND length(OrderID) = 6
+AND order_id <> 'OrderID';
+
+
+/** what i initially thought vs what I wrote the second time. I added a round fuction w 2 decimal places for $
+SELECT customers.acctnum, avg(febsales.price)
+FROM FebSales
+JOIN customers
+ON customers.order_id = febsales.orderID
+WHERE febsales.Quantity >= 2
+AND length(orderID)=6
+AND orderID <> 'OrderID'
+GROUP BY customers.acctnum;
